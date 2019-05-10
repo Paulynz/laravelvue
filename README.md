@@ -1,2 +1,2 @@
 # laravelvue
-Trying to develop laravel + vuejs
+Exploring laravel + vuejs
