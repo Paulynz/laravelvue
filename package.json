@@ -27,11 +27,14 @@
         "@fortawesome/fontawesome-free": "^5.8.1",
         "admin-lte": "^3.0.0-alpha.2",
         "install": "^0.12.2",
+        "laravel-vue-pagination": "^2.3.0",
         "moment": "^2.24.0",
         "npm": "^6.9.0",
         "sweetalert": "^2.1.2",
         "sweetalert2": "^8.10.1",
+        "typescript": "~2.9.2",
         "vform": "^1.0.0",
+        "vue-filter": "^0.2.5",
         "vue-progressbar": "^0.7.5",
         "vue-router": "^3.0.6"
     }

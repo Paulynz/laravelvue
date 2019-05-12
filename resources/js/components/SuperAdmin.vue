@@ -1,7 +1,15 @@
 <template>
     <div class="container">
         <div class="row justify-content-center">
-            <not-found></not-found>
+            <div class="content">
+                <h1>HELLO SUPER ADMIN</h1>
+                <a href="/dashboard">
+                    DELETE THIS WHOLE THING?
+                </a>
+            </div>
+            
+            
+            
         </div>
     </div>
 </template>

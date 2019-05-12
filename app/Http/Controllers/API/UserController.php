@@ -21,7 +21,27 @@ class UserController extends Controller
 
     public function index()
     {
-        return User::latest()->paginate(10);
+        if (\Gate::allows('isSuperAdmin') || \Gate::allows('isAdmin')) {
+            return User::latest()->paginate(5);
+        }
+        
+    }
+
+
+    public function search(){
+        if($search = \Request::get('q')){
+            $users = User::where(function($query) use ($search){
+                $query->where('name','LIKE',"%$search%")
+                ->orWhere('email','LIKE',"%$search%")
+                ->orWhere('type','LIKE',"%$search%");
+
+            })->paginate(20);
+        }else{
+            $users =  User::latest()->paginate(5);
+        }
+
+        return $users;
+
     }
 
     public function store(Request $request)
@@ -98,12 +118,19 @@ class UserController extends Controller
 
         ]);
 
-        $user->update($request->all());
+        $user->update([
+            'name'=>$request['name'],
+            'email'=>$request['email'],
+            'bio'=>$request['bio'],
+            'type'=>$request['type'],
+            'password'=>Hash::make($request['password']),
+            ]);
         return ['message' => 'Updated user'];
     }
 
     public function destroy($id)
     {
+        $this->authorize('isAdmin');
         $user = User::findOrFail($id);
 
         //delete the user

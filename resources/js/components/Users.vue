@@ -1,6 +1,6 @@
 <template>
     <div class="container">
-        <div class="row mt-5">
+        <div class="row mt-5" v-if="$gate.isSuperAdminorAdmin()">
           <div class="col-md-12">
             <div class="card">
               <div class="card-header">
@@ -15,40 +15,45 @@
               <!-- /.card-header -->
               <div class="card-body table-responsive p-0">
                 <table class="table table-hover">
-                  <tbody><tr>
-                    <th>ID</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Type</th>
-                    <th>Registered At</th>
-                    <th>Modify</th>
-                  </tr>
-                  <tr v-for="user in users" :key="user.id">
-                    <td>{{user.id}}</td>
-                    <td>{{user.name}}</td>
-                    <td>{{user.email}}</td>
-                    <td>{{user.type |upText}}</td>
-                    <td>{{user.created_at |myDate}}</td>
-                    <td>
-                        <a href="#" @click="editModal(user)">
-                            <i class="fa fa-edit"></i>
-                        </a>
-                        /
-                        <a href="#" @click="deleteUser(user.id)">
-                            <i class="fa fa-trash red"></i>
-                        </a>
-
-                    </td>
-                  </tr>
-
-
-
-                </tbody></table>
+                  <tbody>
+					<tr>
+						<th>ID</th>
+						<th>Name</th>
+						<th>Email</th>
+						<th>Type</th>
+						<th>Registered At</th>
+						<th>Modify</th>
+                  	</tr>
+                  	<tr v-for="user in users.data" :key="user.id" v-if="user.type != 'SuperAdmin'">
+                          <td>{{user.id}}</td>
+                          <td>{{user.name}}</td>
+                          <td>{{user.email}}</td>
+                          <td>{{user.type}}</td>
+                          <td>{{user.created_at |myDate}}</td>
+                          <td>
+                              <a href="#" @click="editModal(user)">
+                                  <i class="fa fa-edit"></i>
+								</a>
+                                /
+                                <a href="#" @click="deleteUser(user.id)">
+                                    <i class="fa fa-trash red"></i>
+								</a>
+						  </td>
+                  	</tr>
+					</tbody>
+				</table>
               </div>
               <!-- /.card-body -->
             </div>
+            <div class="card-footer">
+                <pagination :data="users" @pagination-change-page="getshowanother"></pagination>
+            </div>
             <!-- /.card -->
           </div>
+        </div>
+            
+        <div v-if="!$gate.isSuperAdminorAdmin()">
+            <not-found></not-found>
         </div>
 
         <!-- Modal -->
@@ -57,7 +62,7 @@
             <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title" v-show="!editmode" id="addNew">Add New User</h5>
-                <h5 class="modal-title" v-show="editmode" id="addNew">Update User Info</h5>
+                <h5 class="modal-title" v-show="editmode" id="UpdateUser">Update User Info</h5>
                 <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                 <span aria-hidden="true">&times;</span>
                 </button>
@@ -85,9 +90,9 @@
                 <div class="form-group">
                     <select name="type" v-model="form.type" id="type" class="form-control" :class="{ 'is-invalid': form.errors.has('type') }">
                         <option value="">Select User Role</option>
-                        <option value="admin">Admin</option>
-                        <option value="user">Standard</option>
-                        <option value="author">Author</option>
+                        <option value="Admin">Admin</option>
+                        <option value="User">Standard</option>
+                        <option value="Author">Author</option>
                     </select>
                     <has-error :form="form" field="type"></has-error>
                 </div>
@@ -128,6 +133,13 @@
             }
         },
         methods:{
+            
+            getshowanother(page = 1){
+                axios.get('api/user?page=' + page)
+				.then(response => {
+					this.users = response.data;
+				});
+		    },
             updateUser(){
                 this.$Progress.start()
                 this.form.put('api/user/'+this.form.id)
@@ -166,7 +178,7 @@
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',
                     cancelButtonColor: '#d33',
-                    confirmButtonText: 'Yes, delete it!'
+                    confirmButtonText: 'Yes, delete it man!'
                     }).then((result) => {
 
                         //Send AJX request to the server
@@ -181,15 +193,16 @@
                             Fire.$emit('AfterCreated');    
 
                             }).catch(()=>{
-                                swal("Failed", "There was something wrong","warning");
+                                swal.fire("Failed", "There was something wrong","warning");
                             });
                           }
                     })
 
             },
             loadUsers(){
-                axios.get("api/user").then(({ data }) =>(this.users = data.data)); //promise function data send data to this.users = data
-
+                if(this.$gate.isSuperAdminorAdmin()){
+                    axios.get("api/user").then(({ data }) =>(this.users = data)); //promise function data send data to this.users = data
+                }
             },
             createUser(){
                 this.$Progress.start()
@@ -213,6 +226,17 @@
 
         },
         created() {
+            Fire.$on('searching',() =>{
+                let query = this.$parent.search;
+                axios.get('api/findUser?q=' + query)
+                .then((data)=>{
+                    this.users = data.data;
+
+                })
+                .catch(()=>{
+
+                })
+            })
             this.loadUsers();
             // setInterval(() => this.loadUsers(),3000);
             Fire.$on('AfterCreated',() => {

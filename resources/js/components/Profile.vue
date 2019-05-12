@@ -15,7 +15,7 @@
                     <!-- Add the bg color to the header using any of the bg-* classes -->
                     <div class="widget-user-header text-white" style="background-image:url('./img/1002864.png')">
                         <h3 class="widget-user-username">{{this.form.name}}</h3>
-                        <h5 class="widget-user-desc">{{this.form.bio}}</h5>
+                        <h5 class="widget-user-desc">{{this.form.type}}</h5>
                     </div>
                     <div class="widget-user-image">
                         <img class="profile-user-img img-fluid img-circle" style="width:128px;height:128px;background-size:cover;background-position:center center;display:block"
@@ -106,7 +106,7 @@
                                     <label for="password" class="col-sm-5 control-label">Password (leave empty if not changing)</label>
 
                                     <div class="col-sm-10">
-                                    <input type="text" class="form-control" v-model="form.password" id="password" placeholder="Password" :class="{ 'is-invalid': form.errors.has('password') }">
+                                    <input type="password" class="form-control" v-model="form.password" id="password" placeholder="Password" :class="{ 'is-invalid': form.errors.has('password') }">
                     <has-error :form="form" field="password"></has-error>
                                     </div>
                                 </div>
@@ -167,7 +167,6 @@
                 this.$Progress.start()
                 this.form.put("api/profile")
                 .then(()=>{
-                    console.log("wew");
                     swal.fire(
                         'Updated!',
                         'Your Profile has been Updated.',
