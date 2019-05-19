@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 <!--
 This is a starter template page. Use this page to start your new project from
@@ -95,7 +94,7 @@ scratch. This page gets rid of all links and provides the needed markup only.
           @if(Gate::check('isSuperAdmin') || Gate::check('isAdmin'))
           <li class="nav-item has-treeview">
             <a href="" class="nav-link">
-              <i class="nav-icon fas fa-cog green"></i>
+              <i class="nav-icon fas fa-users-cog"></i>
               <p>
                 Management
                 <i class="right fa fa-angle-left"></i>

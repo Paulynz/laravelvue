@@ -10,6 +10,12 @@ require('./bootstrap');
  
 window.Vue = require('vue');
 
+
+
+import VueFloatLabel from "vue-float-label";
+
+Vue.use(VueFloatLabel);
+
 import moment from 'moment'; // convert time//
 import { Form, HasError, AlertError } from 'vform'
 import Gate from "./Gate";
@@ -117,6 +123,7 @@ const app = new Vue({
     router,
     data:{
         search: ''
+        
     },
 
     methods:{

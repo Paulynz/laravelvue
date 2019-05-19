@@ -24,13 +24,17 @@
 						<th>Registered At</th>
 						<th>Modify</th>
                   	</tr>
-                  	<tr v-for="user in users.data" :key="user.id" v-if="user.type != 'SuperAdmin'">
+                  	<tr v-for="user in users.data" :key="user.id">
                           <td>{{user.id}}</td>
                           <td>{{user.name}}</td>
                           <td>{{user.email}}</td>
                           <td>{{user.type}}</td>
                           <td>{{user.created_at |myDate}}</td>
                           <td>
+                              <a href="#" @click="showUser(user)">
+                                    <i class="fa fa-eye black"></i>
+								</a>
+                                /
                               <a href="#" @click="editModal(user)">
                                   <i class="fa fa-edit"></i>
 								</a>
@@ -56,7 +60,38 @@
             <not-found></not-found>
         </div>
 
-        <!-- Modal -->
+        <!-- Show Modal -->
+        <div class="modal fade" tabindex="-1" role="dialog" aria-labelledby="showUser" id="showUser" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="showUser">Show User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <div class="widget-user-image text-center">
+                        <img class="img-thumbnail img-fluid img-circle" 
+                         :src="getProfilePhoto()" alt="User Avatar">
+                    </div>
+                    <div class="form-group">
+                        <input v-model="form.name" type="text" name="name" title="Name" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <input v-model="form.email" type="text" name="email" title="Email" class="form-control" disabled>
+                    </div>
+                    <div class="form-group">
+                        <input v-model="form.bio" type="text" name="bio" title="Bio" class="form-control" disabled>
+                    </div>
+                    
+                </div>
+            </div>
+
+        </div>
+        </div>
+
+        <!-- Create and Edit Modal -->
         <div class="modal fade" id="addNew" tabindex="-1" role="dialog" aria-labelledby="addNew" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered" role="document">
             <div class="modal-content">
@@ -70,36 +105,46 @@
             <form @submit.prevent="editmode ? updateUser() : createUser()">
             <div class="modal-body">
                 <div class="form-group">
-                    <input v-model="form.name" type="text" name="name"
-                        placeholder="Name"
-                        class="form-control" :class="{ 'is-invalid': form.errors.has('name') }">
-                    <has-error :form="form" field="name"></has-error>
+                    <float-label>
+                        <input v-model="form.name" type="text" name="name"
+                            placeholder="Name"
+                            class="form-control mt-1" :class="{ 'is-invalid': form.errors.has('name') }">
+                        <has-error :form="form" field="name"></has-error>
+                    </float-label>
                 </div>
                 <div class="form-group">
-                    <input v-model="form.email" type="text" name="email"
-                        placeholder="Email"
-                        class="form-control" :class="{ 'is-invalid': form.errors.has('email') }">
-                    <has-error :form="form" field="email"></has-error>
+                    <float-label>
+                        <input v-model="form.email" type="text" name="email"
+                            placeholder="Email"
+                            class="form-control mt-1" :class="{ 'is-invalid': form.errors.has('email') }">
+                        <has-error :form="form" field="email"></has-error>
+                    </float-label>
                 </div>
                 <div class="form-group">
-                    <textarea v-model="form.bio" type="text" name="bio"
-                        placeholder="Short bio for the user (Optional)"
-                        class="form-control" :class="{ 'is-invalid': form.errors.has('bio') }"></textarea>
-                    <has-error :form="form" field="bio"></has-error>
+                    <float-label >
+                        <textarea v-model="form.bio" type="text" name="bio"
+                            placeholder="Short bio for the user (Optional)"
+                            class="form-control mt-1" :class="{ 'is-invalid': form.errors.has('bio') }"></textarea>
+                        <has-error :form="form" field="bio"></has-error>
+                    </float-label>
                 </div>
                 <div class="form-group">
-                    <select name="type" v-model="form.type" id="type" class="form-control" :class="{ 'is-invalid': form.errors.has('type') }">
-                        <option value="">Select User Role</option>
-                        <option value="Admin">Admin</option>
-                        <option value="User">Standard</option>
-                        <option value="Author">Author</option>
-                    </select>
-                    <has-error :form="form" field="type"></has-error>
+                    <float-label :dispatch="false">
+                        <select name="type" placeholder="User Type" v-model="form.type" id="type" class="form-control mt-1" :class="{ 'is-invalid': form.errors.has('type') }">
+                            <option disabled selected value="">Select User Role</option>
+                            <option value="Admin">Admin</option>
+                            <option value="User">Standard</option>
+                            <option value="Author">Author</option>
+                        </select>
+                        <has-error :form="form" field="type"></has-error>
+                    </float-label>
                 </div>
                 <div class="form-group">
-                    <input v-model="form.password" type="password" name="password" id="password"
-                        class="form-control" :class="{ 'is-invalid': form.errors.has('password') }">
-                    <has-error :form="form" field="password"></has-error>
+                    <float-label>
+                        <input placeholder="Password" v-model="form.password" type="password" name="password" id="password"
+                            class="form-control mt-1" :class="{ 'is-invalid': form.errors.has('password') }">
+                        <has-error :form="form" field="password"></has-error>
+                    </float-label>
                 </div>
             </div>
             <div class="modal-footer">
@@ -118,6 +163,7 @@
     export default {
         data() {
             return{
+                fullWidthImage : false,
                 editmode : false,
                 users : {},//array store users data
                 form : new Form({
@@ -133,6 +179,23 @@
             }
         },
         methods:{
+            getProfilePhoto(){
+                
+                let photo = this.form.photo;
+                
+                if(photo == null){
+                    return ('img/profile/') + this.form.photo;
+
+                }
+                if(photo.includes('data:image')){
+                    return this.form.photo;
+
+                }else{
+                    return ('img/profile/') + this.form.photo;
+                }
+                
+
+            },
             
             getshowanother(page = 1){
                 axios.get('api/user?page=' + page)
@@ -142,6 +205,10 @@
 		    },
             updateUser(){
                 this.$Progress.start()
+                let password = this.form.password;
+                if(password == ""){
+                    this.form.password = undefined; 
+                }
                 this.form.put('api/user/'+this.form.id)
                 .then(() => {
                     //successful
@@ -158,6 +225,11 @@
                 .catch(() => {
                     this.$Progress.fail();
                 });
+            },
+            showUser(user){
+                $('#showUser').modal('show');
+                this.form.fill(user);
+
             },
             editModal(user){
                 this.editmode = true;

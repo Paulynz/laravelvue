@@ -18,7 +18,7 @@
                         <h5 class="widget-user-desc">{{this.form.type}}</h5>
                     </div>
                     <div class="widget-user-image">
-                        <img class="profile-user-img img-fluid img-circle" style="width:128px;height:128px;background-size:cover;background-position:center center;display:block"
+                        <img class="profile-user-img img-fluid img-circle" 
                          :src="getProfilePhoto()" alt="User Avatar">
                     </div>
                     <div class="card-footer">
@@ -141,7 +141,7 @@
                     password :'',
                     type :'',
                     bio :'',
-                    photo :'',
+                    photo : '',
                 })
             }
             
@@ -154,6 +154,11 @@
 
             getProfilePhoto(){
                 let photo = this.form.photo;
+                
+                if(photo == null){
+                    return ('img/profile/') + this.form.photo;
+
+                }
                 if(photo.includes('data:image')){
                     return this.form.photo;
 
@@ -162,9 +167,12 @@
                 }
 
             },
-
             updateInfo(){
                 this.$Progress.start()
+                let password = this.form.password;
+                if(password == ""){
+                    this.form.password = undefined; 
+                }
                 this.form.put("api/profile")
                 .then(()=>{
                     swal.fire(
@@ -180,6 +188,7 @@
                 });
 
             },
+
             updateProfile(e){
                 
                 
@@ -203,15 +212,11 @@
                     
 
                 }
-                
-
-                
-
 
             }
 
         },
-
+        
         created(){
             axios.get("api/profile")
             .then(({ data }) =>(this.form.fill(data))); //promise function get and fill

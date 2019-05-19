@@ -21,8 +21,11 @@ class UserController extends Controller
 
     public function index()
     {
-        if (\Gate::allows('isSuperAdmin') || \Gate::allows('isAdmin')) {
-            return User::latest()->paginate(5);
+        if (\Gate::allows('isSuperAdmin')){
+            return User::latest()->paginate(10);
+        }
+        if(\Gate::allows('isAdmin')) {
+            return User::where('type','User')->orWhere('type','Admin')->latest()->paginate(5);
         }
         
     }
@@ -99,7 +102,7 @@ class UserController extends Controller
 
         }
         $user->update($request->all());
-        return ['message' => 'Successful'];
+        return ['message' => "Success"];
     }
     
     public function profile()
@@ -118,19 +121,20 @@ class UserController extends Controller
 
         ]);
 
-        $user->update([
-            'name'=>$request['name'],
-            'email'=>$request['email'],
-            'bio'=>$request['bio'],
-            'type'=>$request['type'],
-            'password'=>Hash::make($request['password']),
-            ]);
-        return ['message' => 'Updated user'];
+        if(!empty($request->password)){
+            $request->merge(['password' => Hash::make($request['password'])]);
+
+        }
+
+        $user->update($request->all());
+        return ['message' => "Success"];
     }
 
     public function destroy($id)
     {
-        $this->authorize('isAdmin');
+        
+        $this->authorize('isSuperAdmins');
+        
         $user = User::findOrFail($id);
 
         //delete the user
